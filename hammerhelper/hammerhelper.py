@@ -8,6 +8,14 @@ from units import all_units_dict
 QUIT_COMMANDS = ['q', 'Q']
 
 FRIENDLY_ARMY = [all_units_dict['Captain in Gravis Armor'],
+                 all_units_dict['Primaris Lieutenant'],
+                 all_units_dict['Primaris Ancient'],
+                 all_units_dict['Primaris Apothecary'],
+                 all_units_dict['Redemptor Dreadnaught'],
+                 all_units_dict['Aggressor Sergeant'],
+                 all_units_dict['Aggressor'],
+                 all_units_dict['Hellblaster Sergeant'],
+                 all_units_dict['Hellblaster'],
                  all_units_dict['Intercessor Sergeant'],
                  all_units_dict['Intercessor']]
 ENEMY_ARMY = FRIENDLY_ARMY
@@ -57,7 +65,7 @@ def print_weapons(weapons, unit):
 
 
 def print_sim_results(sim_results):
-    headers = ['Target Name', 'Attacks', 'Hits', 'Wounds', 'Damage', 'Kills']
+    headers = ['Target Name', 'Attacks', 'H', 'Hits', 'W', 'Wounds', 'Sv', 'Damage', 'Kills']
     print(tabulate(sim_results, headers, tablefmt='psql'))
 
 
@@ -101,7 +109,7 @@ def input_attack(army):
 
     if 'D' in str(attacking_weapon.a):
         print('Note: For weapons with a dice value for `A`, '
-              'the number of shots is the number of times to roll that die.')
+              'the number of shots is the number of times the unit fires the weapon.')
     n_shots = number_prompt('How many shots: ')
 
     return attacking_unit, attacking_weapon, n_shots

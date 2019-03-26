@@ -47,7 +47,7 @@ class Ability(object):
     def modify_effective_attacks(self, effective_attacks):
         return effective_attacks
 
-    def modify_hit_rolls(self, hit_rolls):
+    def modify_hit_rolls(self, hit_rolls, hit_target):
         return hit_rolls
 
     def modify_wound_rolls(self, wound_rolls):
@@ -94,8 +94,17 @@ class HitModifier(Ability):
         super().__init__(name)
         self.modifier = modifier
 
-    def modify_hit_rolls(self, hit_rolls):
+    def modify_hit_rolls(self, hit_rolls, hit_target):
         return hit_rolls + self.modifier
+
+
+class AutoHit(Ability):
+    offensive = True
+    order = 3  # Go after all other hit mods
+
+    def modify_hit_rolls(self, hit_rolls, hit_target):
+        hit_rolls.fill(hit_target + 1)  # The +1 is just for my sanity
+        return hit_rolls
 
 
 class HitReRollAura(Ability):
@@ -110,11 +119,33 @@ class HitReRollAura(Ability):
     def is_active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
         if attacking_unit == aura_unit:
             return True
-        return boolean_prompt('Is {} within {}" of {}? '.format(attacking_unit.name, self.aura_range, aura_unit.name))
+        return boolean_prompt('{}: Is {} within {}" of {}? '.format(self.name, attacking_unit.name, self.aura_range, aura_unit.name))
 
-    def modify_hit_rolls(self, hit_rolls):
+    def modify_hit_rolls(self, hit_rolls, hit_target):
         failed_rolls = np.argwhere(hit_rolls <= self.value)
         reroll = np.random.randint(1, 6, size=len(failed_rolls))
         for i, failed_roll_loc in enumerate(failed_rolls):
             hit_rolls[failed_roll_loc] = reroll[i]
         return hit_rolls
+
+
+class WoundReRollAura(Ability):
+    offensive = True
+    aura = True
+
+    def __init__(self, name, value, aura_range):
+        super().__init__(name)
+        self.value = value
+        self.aura_range = aura_range
+
+    def is_active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
+        if attacking_unit == aura_unit:
+            return True
+        return boolean_prompt('{}: Is {} within {}" of {}? '.format(self.name, attacking_unit.name, self.aura_range, aura_unit.name))
+
+    def modify_wound_rolls(self, wound_rolls):
+        failed_rolls = np.argwhere(wound_rolls <= self.value)
+        reroll = np.random.randint(1, 6, size=len(failed_rolls))
+        for i, failed_roll_loc in enumerate(failed_rolls):
+            wound_rolls[failed_roll_loc] = reroll[i]
+        return wound_rolls
