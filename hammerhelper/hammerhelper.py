@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from tabulate import tabulate
 
 from abilities import string_from_ability_list
@@ -12,12 +14,12 @@ FRIENDLY_ARMY = [all_units_dict['Captain in Gravis Armor'],
                  all_units_dict['Primaris Ancient'],
                  all_units_dict['Primaris Apothecary'],
                  all_units_dict['Redemptor Dreadnaught'],
-                 all_units_dict['Aggressor Sergeant'],
+                 all_units_dict['Inceptor'],
                  all_units_dict['Aggressor'],
-                 all_units_dict['Hellblaster Sergeant'],
                  all_units_dict['Hellblaster'],
-                 all_units_dict['Intercessor Sergeant'],
-                 all_units_dict['Intercessor']]
+                 all_units_dict['Intercessor'],
+                 all_units_dict['Plague Champion'],
+                 all_units_dict['Poxwalker']]
 ENEMY_ARMY = FRIENDLY_ARMY
 
 

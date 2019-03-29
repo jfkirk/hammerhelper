@@ -1,6 +1,7 @@
 from enum import Enum
 
-from abilities import Ability, AttacksModifier, InvulnerableSave, AutoHit, HitModifier, HitReRollAura, WoundReRollAura
+from abilities import (sort_abilities, Ability, AttacksModifier, DiseasedHorde, InvulnerableSave, AutoHit, HitModifier,
+                       HitReRollAura, Resilient, WoundReRoll, WoundReRollAura)
 
 
 class WeaponType(Enum):
@@ -41,7 +42,7 @@ class Weapon(object):
             result = unit.a
         else:
             result = self.a
-        for ability in self.abilities:
+        for ability in sort_abilities(self.abilities, 'modify_effective_attacks'):
             result = ability.modify_effective_attacks(result)
         return result
 
@@ -60,7 +61,7 @@ default_melee = Weapon('Close Combat Weapon', None, WeaponType.MELEE, 'U', 'U', 
 
 class Unit(object):
 
-    def __init__(self, name, m, ws, bs, s, t, w, a, ld, sv, weapons, abilities=None):
+    def __init__(self, name, m, ws, bs, s, t, w, a, ld, sv, weapons=None, abilities=None):
         self.name = name
         self.m = m
         self.ws = ws
@@ -110,6 +111,22 @@ class Unit(object):
 
 all_units = [
 
+    # DEATH GUARD #
+    # DEATH GUARD TROOPS #
+
+    Unit('Plague Champion', 5, 3, 3, 4, 5, 1, 2, 8, 3, weapons=[
+        Weapon('Blight Launcher', 24, WeaponType.ASSAULT, 2, 6, -2, 'D3', abilities=[WoundReRoll('Plague Weapon', 1)]),
+        Weapon('Bolt Pistol', 12, WeaponType.PISTOL, 1, 4, 0, 1),
+        Weapon('Boltgun', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
+        Weapon('Meltagun', 12, WeaponType.ASSAULT, 1, 8, -4, 'D6'),  # TODO roll two damage dice ability
+        # TODO more weapons
+    ], abilities=[Resilient('Disgustingly Resilient', 5)]),
+
+    Unit('Poxwalker', 4, 5, 6, 3, 3, 1, 2, 4, 7, abilities=[
+        Resilient('Disgustingly Resilient', 5),
+        DiseasedHorde(),
+    ]),
+
     # SPACE MARINES #
     # SPACE MARINE HQ #
 
@@ -118,9 +135,8 @@ all_units = [
         Weapon('Boltstorm Gauntlet (melee)', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D3', abilities=[
             HitModifier('Subtract 1 from the hit roll', -1)]),
         Weapon('Master-crafted Power Sword', None, WeaponType.MELEE, 'U', 'U', -3, 2),
-    ], abilities=[
-        InvulnerableSave('Iron Halo', 4),
-        HitReRollAura('Rites of Battle', 1, 6)]),
+    ], abilities=[InvulnerableSave('Iron Halo', 4),
+                  HitReRollAura('Rites of Battle', 1, 6)]),
 
     Unit('Primaris Lieutenant', 6, 2, 3, 4, 4, 5, 4, 8, 3, weapons=[
         Weapon('Bolt Pistol', 12, WeaponType.PISTOL, 1, 4, 0, 1),
@@ -169,16 +185,31 @@ all_units = [
     ], abilities=[Ability('Narthecium')]),
 
     Unit('Redemptor Dreadnaught', 8, 3, 3, 7, 7, 13, 4, 8, 3, weapons=[
-        Weapon('Fragstorm Grenade Launcher', 18, WeaponType.ASSAULT, 'D6', 4, 0, 1),
-        Weapon('Heavy Flamer', 8, WeaponType.HEAVY, 'D6', 5, -1, 1),  # TODO autohit
-        Weapon('Heavy Onslaught Gatling Cannon', 30, WeaponType.HEAVY, 12, 5, -1, 1),
-        Weapon('Icarus Rocket Pod', 24, WeaponType.HEAVY, 'D3', 7, -1, 1),  # TODO anti-air
         Weapon('Macro Plasma Incinerator (Standard)', 36, WeaponType.HEAVY, 'D6', 8, -4, 1),
         Weapon('Macro Plasma Incinerator (Supercharge)', 36, WeaponType.HEAVY, 'D6', 9, -4, 2),
+        Weapon('Heavy Onslaught Gatling Cannon', 30, WeaponType.HEAVY, 12, 5, -1, 1),
+        Weapon('Heavy Flamer', 8, WeaponType.HEAVY, 'D6', 5, -1, 1),  # TODO autohit
         Weapon('Onslaught Gatling Cannon', 24, WeaponType.HEAVY, 6, 5, -1, 1),
         Weapon('Storm Bolter', 24, WeaponType.RAPID_FIRE, 2, 4, 0, 1),
+        Weapon('Fragstorm Grenade Launcher', 18, WeaponType.ASSAULT, 'D6', 4, 0, 1),
+        Weapon('Icarus Rocket Pod', 24, WeaponType.HEAVY, 'D3', 7, -1, 1),  # TODO anti-air
         Weapon('Redemptor Fist', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D6'),
     ], abilities=[Ability('Explodes')]),
+
+    # SPACE MARINE FAST ATTACK #
+
+    Unit('Inceptor Sergeant', 10, 3, 3, 4, 5, 2, 2, 8, 3, weapons=[
+        Weapon('Assault Bolter', 18, WeaponType.ASSAULT, 3, 5, -1, 1),
+        Weapon('Plasma Exterminator (Standard)', 18, WeaponType.ASSAULT, 'D3', 7, -3, 1),
+        Weapon('Plasma Exterminator (Supercharge)', 18, WeaponType.ASSAULT, 'D3', 8, -3, 2)
+    ], abilities=[Ability('Meteoric Descent'),
+                  Ability('Crushing Charge')]),
+    Unit('Inceptor', 10, 3, 3, 4, 5, 2, 2, 7, 3, weapons=[
+        Weapon('Assault Bolter', 18, WeaponType.ASSAULT, 3, 5, -1, 1),
+        Weapon('Plasma Exterminator (Standard)', 18, WeaponType.ASSAULT, 'D3', 7, -3, 1),
+        Weapon('Plasma Exterminator (Supercharge)', 18, WeaponType.ASSAULT, 'D3', 8, -3, 2)
+    ], abilities=[Ability('Meteoric Descent'),
+                  Ability('Crushing Charge')]),
 
     # SPACE MARINE HEAVY SUPPORT #
 

@@ -1,6 +1,7 @@
 import numpy as np
 import progressbar
 
+from abilities import sort_abilities
 from units import WeaponType
 
 
@@ -44,14 +45,14 @@ def calculate_wound_target_value(attacking_unit, weapon, target_unit):
     return t, s, 6
 
 
-def calculate_save_target_value(weapon, target_unit, active_abilities):
+def calculate_save_target_value(weapon, target_unit, save_target_abilities):
     target = target_unit.sv - weapon.ap
 
     # "A roll of 1 always fails, irrespective of any modifiers that may apply."
     if target < 2:
         target = 2
 
-    for ability in active_abilities:
+    for ability in save_target_abilities:
         target = ability.modify_save_target(target)
 
     return target
@@ -106,11 +107,14 @@ def simulate_unit(attacking_unit, weapon, n_shots, target_unit, offensive_abilit
                               if ab.is_active_prompt(attacking_unit, target_unit, enemy_unit)])
 
     # Sort abilities on their "order" value
-    all_abilities.sort(key=lambda x: x.order)
+    save_target_abilities = sort_abilities(all_abilities, with_method='modify_save_target')
+    hit_mod_abilities = sort_abilities(all_abilities, with_method='modify_hit_rolls')
+    wound_mod_abilities = sort_abilities(all_abilities, with_method='modify_wound_rolls')
+    damage_mod_abilities = sort_abilities(all_abilities, with_method='modify_damage_rolls')
 
     hit_target_value = attacking_unit.ws if weapon.weapon_type == WeaponType.MELEE else attacking_unit.bs
     t, s, wound_target_value = calculate_wound_target_value(attacking_unit, weapon, target_unit)
-    save_target_value = calculate_save_target_value(weapon, target_unit, all_abilities)
+    save_target_value = calculate_save_target_value(weapon, target_unit, save_target_abilities)
 
     sims_attacks_hits_wounds_damages_kills = []
 
@@ -125,13 +129,13 @@ def simulate_unit(attacking_unit, weapon, n_shots, target_unit, offensive_abilit
 
         # Roll the attack dice
         hit_rolls = roll_dice(6, size=n_attacks)
-        for ability in all_abilities:
+        for ability in hit_mod_abilities:
             hit_rolls = ability.modify_hit_rolls(hit_rolls, hit_target_value)
         n_hits = (hit_rolls >= hit_target_value).sum()
 
         # Roll the wound dice
         wound_rolls = roll_dice(6, size=n_hits)
-        for ability in all_abilities:
+        for ability in wound_mod_abilities:
             wound_rolls = ability.modify_wound_rolls(wound_rolls)
         n_wounds = (wound_rolls >= wound_target_value).sum()
 
@@ -141,6 +145,8 @@ def simulate_unit(attacking_unit, weapon, n_shots, target_unit, offensive_abilit
 
         # Roll damage
         damage_rolls = maybe_roll_from_dice_string(weapon.d, size=n_unsaved)
+        for ability in damage_mod_abilities:
+            damage_rolls = ability.modify_damage_rolls(damage_rolls)
         total_damage = sum(damage_rolls)
 
         # Allocate damage and count kills
