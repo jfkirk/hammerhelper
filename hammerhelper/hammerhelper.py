@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from distutils.util import strtobool
 from tabulate import tabulate
 
 from abilities import string_from_ability_list
@@ -71,6 +72,17 @@ def print_sim_results(sim_results):
     print(tabulate(sim_results, headers, tablefmt='psql'))
 
 
+def boolean_prompt(text):
+    result = None
+    while result is None:
+        try:
+            response = input(text)
+            result = strtobool(response)
+        except ValueError:
+            print('Invalid response "{}", try "T" or "F"'.format(response))
+    return result
+
+
 def number_prompt(text, max_val=None):
     while True:
         response = input(text)
@@ -88,6 +100,14 @@ def number_prompt(text, max_val=None):
             print('Invalid selection, must be between 1 and {} or `q` to restart'.format(max_val))
             continue
         return selection
+
+
+def maybe_prompt_for_ability(ability, attacking_unit, target_unit=None, aura_unit=None):
+    prompt_string = ability.active_prompt(attacking_unit, target_unit, aura_unit)
+    if prompt_string:
+        return boolean_prompt(prompt_string)
+    else:
+        return True
 
 
 def input_attack(army):
@@ -117,6 +137,42 @@ def input_attack(army):
     return attacking_unit, attacking_weapon, n_shots
 
 
+def map_abilities(attacking_unit, weapon, target_units, friendly_army, enemy_army):
+    result = {}
+
+    # These abilities apply to all targets
+    offensive_abilities = []
+    offensive_abilities.extend([ab for ab in attacking_unit.offensive_abilities
+                                if maybe_prompt_for_ability(ab, attacking_unit)])
+    offensive_abilities.extend([ab for ab in weapon.offensive_abilities
+                                if maybe_prompt_for_ability(ab, attacking_unit)])
+    for friendly_unit in friendly_army:
+        offensive_abilities.extend([ab for ab in friendly_unit.offensive_auras
+                                    if maybe_prompt_for_ability(ab, attacking_unit, aura_unit=friendly_unit)])
+
+    for target_unit in target_units:
+
+        # These abilities apply to specific targets
+        abilities_per_target = offensive_abilities.copy()
+        abilities_per_target.extend([ab for ab in attacking_unit.offensive_targeted_abilities
+                                     if maybe_prompt_for_ability(ab, attacking_unit, target_unit)])
+        abilities_per_target.extend([ab for ab in weapon.offensive_targeted_abilities
+                                     if maybe_prompt_for_ability(ab, attacking_unit, target_unit)])
+        abilities_per_target.extend([ab for ab in target_unit.defensive_abilities
+                                     if maybe_prompt_for_ability(ab, attacking_unit, target_unit)])
+
+        for friendly_unit in friendly_army:
+            abilities_per_target.extend([ab for ab in friendly_unit.offensive_targeted_auras
+                                         if maybe_prompt_for_ability(ab, attacking_unit, target_unit, friendly_unit)])
+        for enemy_unit in enemy_army:
+            abilities_per_target.extend([ab for ab in enemy_unit.defensive_auras
+                                         if maybe_prompt_for_ability(ab, attacking_unit, target_unit, enemy_unit)])
+
+        result[target_unit.name] = abilities_per_target
+
+    return result
+
+
 def main_loop():
 
     while True:
@@ -124,7 +180,9 @@ def main_loop():
         if n_shots is None:
             continue
 
-        all_sim_results = simulate(attacking_unit, weapon, n_shots, ENEMY_ARMY, FRIENDLY_ARMY, ENEMY_ARMY)
+        abilities_by_target = map_abilities(attacking_unit, weapon, ENEMY_ARMY, FRIENDLY_ARMY, ENEMY_ARMY)
+
+        all_sim_results = simulate(attacking_unit, weapon, n_shots, ENEMY_ARMY, abilities_by_target)
         print_sim_results(all_sim_results)
         input('Press any key to continue...')
 

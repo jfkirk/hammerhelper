@@ -1,5 +1,4 @@
 import numpy as np
-from distutils.util import strtobool
 
 
 def string_from_ability_list(abilities):
@@ -8,17 +7,6 @@ def string_from_ability_list(abilities):
         result += '{}'.format(ability.name)
         if i < len(abilities) - 1:
             result += ', '
-    return result
-
-
-def boolean_prompt(text):
-    result = None
-    while result is None:
-        try:
-            response = input(text)
-            result = strtobool(response)
-        except ValueError:
-            print('Invalid response "{}", try "T" or "F"'.format(response))
     return result
 
 
@@ -50,8 +38,8 @@ class Ability(object):
     def __init__(self, name):
         self.name = name
 
-    def is_active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
-        return True
+    def active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
+        return None
 
 
 class InvulnerableSave(Ability):
@@ -94,8 +82,8 @@ class DiseasedHorde(HitModifier):
     def __init__(self):
         super().__init__('Diseased Horde', 1)
 
-    def is_active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
-        return boolean_prompt('{}: Does {} unit contain more than 10 models? '.format(self.name, attacking_unit.name))
+    def active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
+        return '{}: Does {} unit contain more than 10 models? '.format(self.name, attacking_unit.name)
 
 
 class AutoHit(Ability):
@@ -122,7 +110,6 @@ class WoundReRoll(Ability):
         return wound_rolls
 
 
-
 class HitReRollAura(Ability):
     offensive = True
     aura = True
@@ -132,10 +119,10 @@ class HitReRollAura(Ability):
         self.value = value
         self.aura_range = aura_range
 
-    def is_active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
+    def active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
         if attacking_unit == aura_unit:
-            return True
-        return boolean_prompt('{}: Is {} within {}" of {}? '.format(self.name, attacking_unit.name, self.aura_range, aura_unit.name))
+            return None
+        return '{}: Is {} within {}" of {}? '.format(self.name, attacking_unit.name, self.aura_range, aura_unit.name)
 
     def modify_hit_rolls(self, hit_rolls, hit_target):
         failed_rolls = np.argwhere(hit_rolls <= self.value)
@@ -169,10 +156,10 @@ class WoundReRollAura(Ability):
         self.value = value
         self.aura_range = aura_range
 
-    def is_active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
+    def active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
         if attacking_unit == aura_unit:
-            return True
-        return boolean_prompt('{}: Is {} within {}" of {}? '.format(self.name, attacking_unit.name, self.aura_range, aura_unit.name))
+            return None
+        return '{}: Is {} within {}" of {}? '.format(self.name, attacking_unit.name, self.aura_range, aura_unit.name)
 
     def modify_wound_rolls(self, wound_rolls):
         failed_rolls = np.argwhere(wound_rolls <= self.value)

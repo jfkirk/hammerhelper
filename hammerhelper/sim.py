@@ -58,17 +58,8 @@ def calculate_save_target_value(weapon, target_unit, save_target_abilities):
     return target
 
 
-def simulate(attacking_unit, weapon, n_shots, target_units, friendly_army, enemy_army):
+def simulate(attacking_unit, weapon, n_shots, target_units, abilities_by_target):
     all_sim_results = []
-
-    offensive_abilities = []
-    offensive_abilities.extend([ab for ab in attacking_unit.offensive_abilities
-                                if ab.is_active_prompt(attacking_unit)])
-    offensive_abilities.extend([ab for ab in weapon.offensive_abilities
-                                if ab.is_active_prompt(attacking_unit)])
-    for friendly_unit in friendly_army:
-        offensive_abilities.extend([ab for ab in friendly_unit.offensive_auras
-                                    if ab.is_active_prompt(attacking_unit, aura_unit=friendly_unit)])
 
     print('Simulating...')
     bar = progressbar.ProgressBar(
@@ -78,9 +69,9 @@ def simulate(attacking_unit, weapon, n_shots, target_units, friendly_army, enemy
     bar.start()
 
     for i, target_unit in enumerate(target_units):
+        active_abilities = abilities_by_target[target_unit.name]
         sim_result = [target_unit.name]
-        sim_result.extend(simulate_unit(attacking_unit, weapon, n_shots, target_unit, offensive_abilities,
-                                        friendly_army, enemy_army))
+        sim_result.extend(simulate_unit(attacking_unit, weapon, n_shots, target_unit, active_abilities))
         all_sim_results.append(sim_result)
         bar.update(i + 1)
 
@@ -89,28 +80,13 @@ def simulate(attacking_unit, weapon, n_shots, target_units, friendly_army, enemy
     return all_sim_results
 
 
-def simulate_unit(attacking_unit, weapon, n_shots, target_unit, offensive_abilities, friendly_army, enemy_army):
-
-    all_abilities = offensive_abilities.copy()
-    all_abilities.extend([ab for ab in attacking_unit.offensive_targeted_abilities
-                          if ab.is_active_prompt(attacking_unit, target_unit)])
-    all_abilities.extend([ab for ab in weapon.offensive_targeted_abilities
-                          if ab.is_active_prompt(attacking_unit, target_unit)])
-    all_abilities.extend([ab for ab in target_unit.defensive_abilities
-                          if ab.is_active_prompt(attacking_unit, target_unit)])
-
-    for friendly_unit in friendly_army:
-        all_abilities.extend([ab for ab in friendly_unit.offensive_targeted_auras
-                              if ab.is_active_prompt(attacking_unit, target_unit, friendly_unit)])
-    for enemy_unit in enemy_army:
-        all_abilities.extend([ab for ab in enemy_unit.defensive_auras
-                              if ab.is_active_prompt(attacking_unit, target_unit, enemy_unit)])
+def simulate_unit(attacking_unit, weapon, n_shots, target_unit, active_abilities):
 
     # Sort abilities on their "order" value
-    save_target_abilities = sort_abilities(all_abilities, with_method='modify_save_target')
-    hit_mod_abilities = sort_abilities(all_abilities, with_method='modify_hit_rolls')
-    wound_mod_abilities = sort_abilities(all_abilities, with_method='modify_wound_rolls')
-    damage_mod_abilities = sort_abilities(all_abilities, with_method='modify_damage_rolls')
+    save_target_abilities = sort_abilities(active_abilities, with_method='modify_save_target')
+    hit_mod_abilities = sort_abilities(active_abilities, with_method='modify_hit_rolls')
+    wound_mod_abilities = sort_abilities(active_abilities, with_method='modify_wound_rolls')
+    damage_mod_abilities = sort_abilities(active_abilities, with_method='modify_damage_rolls')
 
     hit_target_value = attacking_unit.ws if weapon.weapon_type == WeaponType.MELEE else attacking_unit.bs
     t, s, wound_target_value = calculate_wound_target_value(attacking_unit, weapon, target_unit)
