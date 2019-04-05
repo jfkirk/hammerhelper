@@ -119,7 +119,21 @@ all_units = [
         Weapon('Bolt Pistol', 12, WeaponType.PISTOL, 1, 4, 0, 1),
         Weapon('Boltgun', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
         Weapon('Meltagun', 12, WeaponType.ASSAULT, 1, 8, -4, 'D6'),  # TODO roll two damage dice ability
-        # TODO more weapons
+        Weapon('Plague Belcher', 9, WeaponType.ASSAULT, 'D6', 4, 0, 1),  # TODO autohit, plague weapon
+        Weapon('Plague Spewer', 9, WeaponType.HEAVY, 'D6', 5, -1, 1),  # TODO autohit, plague weapon
+        Weapon('Plasma Gun (Standard)', 24, WeaponType.RAPID_FIRE, 1, 7, -3, 1),
+        Weapon('Plasma Gun (Supercharge)', 24, WeaponType.RAPID_FIRE, 1, 8, -3, 2),
+        Weapon('Plasma Pistol (Standard)', 12, WeaponType.PISTOL, 1, 7, -3, 1),
+        Weapon('Plasma Pistol (Supercharge)', 12, WeaponType.PISTOL, 1, 8, -3, 2),
+        Weapon('Bubotic Axe', None, WeaponType.MELEE, 'U', 'U+1', -2, 1),  # TODO plague weapon
+        Weapon('Flail of Corruption', None, WeaponType.MELEE, 'D3', 'U+2', -2, 2),  # TODO plague weapon, wound overflow
+        Weapon('Great Plague Cleaver', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D6'),  # TODO plague weapon, hit penalty
+        Weapon('Mace of Contagion', None, WeaponType.MELEE, 'U', 'U+2', -1, 3),  # TODO plague weapon, hit penalty
+        Weapon('Plague Knife', None, WeaponType.MELEE, 'U', 'U', 0, 1),  # TODO plague weapon
+        Weapon('Plague Sword', None, WeaponType.MELEE, 'U', 'U', 0, 1),  # TODO reroll FAILED wound rolls
+        Weapon('Power Fist', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D3'),  # TODO hit penalty
+        Weapon('Blight Grenade', 6, WeaponType.GRENADE, 'D6', 3, 0, 1),  # TODO plague weapon
+        Weapon('Krak Grenade', 6, WeaponType.GRENADE, 1, 6, -1, 'D3'),
     ], abilities=[Resilient('Disgustingly Resilient', 5)]),
 
     Unit('Poxwalker', 4, 5, 6, 3, 3, 1, 2, 4, 7, abilities=[
