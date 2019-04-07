@@ -120,6 +120,53 @@ common_abilities = {
 all_units = [
 
     # DEATH GUARD #
+    # DEATH GUARD ELITES #
+
+    Unit('Blightlord Champion', 4, 3, 3, 4, 5, 2, 3, 9, 2, weapons=[
+        Weapon('Combi-Bolter', 24, WeaponType.RAPID_FIRE, 2, 4, 0, 1),
+        Weapon('Combi-Flamer (Boltgun)', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
+        Weapon('Combi-Flamer (Flamer)', 8, WeaponType.ASSAULT, 'D6', 4, 0, 1),  # TODO autohit
+        Weapon('Combi-Melta (Boltgun)', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
+        Weapon('Combi-Melta (Meltagun)', 12, WeaponType.ASSAULT, 1, 8, -4, 'D6'),  # TODO melta
+        Weapon('Combi-Plasma (Boltgun)', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
+        Weapon('Combi-Plasma (Plasma Standard)', 24, WeaponType.RAPID_FIRE, 1, 7, -3, 1),
+        Weapon('Combi-Plasma (Plasma Supercharged)', 24, WeaponType.RAPID_FIRE, 1, 8, -3, 2),
+        Weapon('Balesword', None, WeaponType.MELEE, 'U', 'U', -3, 1, abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Bubotic Axe', None, WeaponType.MELEE, 'U', 'U+1', -2, 1, abilities=[
+            common_abilities['Plague Weapon']]),
+    ], abilities=[
+        Ability('Teleport Strike'),
+        InvulnerableSave('Cataphractii Armour', 4),
+        Ability('Aura of Rust'),  # TODO make this ability
+    ]),
+    Unit('Blightlord Terminator', 4, 3, 3, 4, 5, 2, 3, 9, 2, weapons=[
+        Weapon('Blight Launcher', 24, WeaponType.ASSAULT, 2, 6, -2, 'D3', abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Combi-Bolter', 24, WeaponType.RAPID_FIRE, 2, 4, 0, 1),
+        Weapon('Combi-Flamer (Boltgun)', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
+        Weapon('Combi-Flamer (Flamer)', 8, WeaponType.ASSAULT, 'D6', 4, 0, 1),  # TODO autohit
+        Weapon('Combi-Melta (Boltgun)', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
+        Weapon('Combi-Melta (Meltagun)', 12, WeaponType.ASSAULT, 1, 8, -4, 'D6'),  # TODO melta
+        Weapon('Combi-Plasma (Boltgun)', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
+        Weapon('Combi-Plasma (Plasma Standard)', 24, WeaponType.RAPID_FIRE, 1, 7, -3, 1),
+        Weapon('Combi-Plasma (Plasma Supercharged)', 24, WeaponType.RAPID_FIRE, 1, 8, -3, 2),
+        Weapon('Plague Spewer', 9, WeaponType.HEAVY, 'D6', 5, -1, 1, abilities=[
+            common_abilities['Plague Weapon'],
+            common_abilities['AutoHit']]),
+        Weapon('Reaper Autocannon', 36, WeaponType.HEAVY, 4, 7, -1, 1),
+        Weapon('Balesword', None, WeaponType.MELEE, 'U', 'U', -3, 1, abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Bubotic Axe', None, WeaponType.MELEE, 'U', 'U+1', -2, 1, abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Flail of Corruption', None, WeaponType.MELEE, 'D3', 'U+2', -2, 2, abilities=[
+            common_abilities['Plague Weapon']]),  # TODO wound overflow
+    ], abilities=[
+        Ability('Teleport Strike'),
+        InvulnerableSave('Cataphractii Armour', 4),
+        Ability('Aura of Rust'),  # TODO make this ability
+    ]),
+
     # DEATH GUARD TROOPS #
 
     Unit('Plague Champion', 5, 3, 3, 4, 5, 1, 2, 8, 3, weapons=[
