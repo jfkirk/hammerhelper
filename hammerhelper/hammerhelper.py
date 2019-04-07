@@ -3,9 +3,9 @@
 from distutils.util import strtobool
 from tabulate import tabulate
 
-from abilities import string_from_ability_list
+from factions.abilities import string_from_ability_list
 from sim import simulate
-from units import all_units_dict
+from factions import all_units_dict
 
 
 QUIT_COMMANDS = ['q', 'Q']

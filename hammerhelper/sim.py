@@ -1,8 +1,8 @@
 import numpy as np
 import progressbar
 
-from abilities import sort_abilities
-from units import WeaponType
+from factions.abilities import sort_abilities
+from factions.units import WeaponType
 from util import roll_dice
 
 

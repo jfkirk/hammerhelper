@@ -79,18 +79,12 @@ class HitModifier(Ability):
         return hit_rolls + self.modifier
 
 
-class DiseasedHorde(HitModifier):
-
-    def __init__(self):
-        super().__init__('Diseased Horde', 1)
-
-    def active_prompt(self, attacking_unit, target_unit=None, aura_unit=None):
-        return '{}: Does {} unit contain more than 10 models? '.format(self.name, attacking_unit.name)
-
-
 class AutoHit(Ability):
     offensive = True
     order = 3  # Go after all other hit mods
+
+    def __init__(self):
+        super().__init__('This weapon automatically hits its target')
 
     def modify_hit_rolls(self, hit_rolls, hit_target):
         hit_rolls.fill(hit_target + 1)  # The +1 is just for my sanity
@@ -127,6 +121,9 @@ class MeltaRollDamageTwice(Ability):
 
 class WoundReRollFailures(Ability):
     offensive = True
+
+    def __init__(self):
+        super().__init__('You can re-roll failed wound rolls for this weapon.')
 
     def modify_wound_rolls(self, wound_rolls, target):
         failed_rolls = np.argwhere(wound_rolls < target)
