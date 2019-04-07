@@ -187,7 +187,7 @@ class WoundReRollAura(Ability):
             return None
         return '{}: Is {} within {}" of {}? '.format(self.name, attacking_unit.name, self.aura_range, aura_unit.name)
 
-    def modify_wound_rolls(self, wound_rolls):
+    def modify_wound_rolls(self, wound_rolls, target):
         failed_rolls = np.argwhere(wound_rolls <= self.value)
         reroll = roll_dice(6, size=len(failed_rolls))
         for i, failed_roll_loc in enumerate(failed_rolls):

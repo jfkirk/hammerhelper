@@ -136,11 +136,12 @@ all_units = [
         Weapon('Bubotic Axe', None, WeaponType.MELEE, 'U', 'U+1', -2, 1, abilities=[
             common_abilities['Plague Weapon']]),
     ], abilities=[
+        Resilient('Disgustingly Resilient', 5),
         Ability('Teleport Strike'),
         InvulnerableSave('Cataphractii Armour', 4),
         Ability('Aura of Rust'),  # TODO make this ability
     ]),
-    Unit('Blightlord Terminator', 4, 3, 3, 4, 5, 2, 3, 9, 2, weapons=[
+    Unit('Blightlord Terminator', 4, 3, 3, 4, 5, 2, 2, 8, 2, weapons=[
         Weapon('Blight Launcher', 24, WeaponType.ASSAULT, 2, 6, -2, 'D3', abilities=[
             common_abilities['Plague Weapon']]),
         Weapon('Combi-Bolter', 24, WeaponType.RAPID_FIRE, 2, 4, 0, 1),
@@ -162,9 +163,28 @@ all_units = [
         Weapon('Flail of Corruption', None, WeaponType.MELEE, 'D3', 'U+2', -2, 2, abilities=[
             common_abilities['Plague Weapon']]),  # TODO wound overflow
     ], abilities=[
+        Resilient('Disgustingly Resilient', 5),
         Ability('Teleport Strike'),
         InvulnerableSave('Cataphractii Armour', 4),
         Ability('Aura of Rust'),  # TODO make this ability
+    ]),
+
+    # DEATH GUARD FAST ATTACK #
+
+    Unit('Foetid Bloat-drone', 10, 4, 4, 6, 7, 10, 3, 8, 3, weapons=[
+        Weapon('Heavy Blight Launcher', 36, WeaponType.ASSAULT, 6, 6, -2, 'D3', abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Plague Spewer', 9, WeaponType.ASSAULT, 'D6', 'U', -1, 1, abilities=[
+            common_abilities['Plague Weapon'],
+            common_abilities['AutoHit']]),
+        Weapon('Fleshmower', None, WeaponType.MELEE, 'U+6', 'U+2', -2, 2, abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Plague Probe', None, WeaponType.MELEE, 'U', 'U', -2, 'D3', abilities=[
+            common_abilities['Plague Weapon']]),
+    ], abilities=[
+        Resilient('Disgustingly Resilient', 5),
+        InvulnerableSave('Daemonic', 5),
+        Ability('Putrid Explosion'),
     ]),
 
     # DEATH GUARD TROOPS #
@@ -179,7 +199,7 @@ all_units = [
         Weapon('Plague Knife', None, WeaponType.MELEE, 'U', 'U', 0, 1, abilities=[
             common_abilities['Plague Weapon']]),
         Weapon('Plague Sword', None, WeaponType.MELEE, 'U', 'U', 0, 1, abilities=[
-            WoundReRollFailures()]),
+            WoundReRollFailures('You can re-roll failed wound rolls for this weapon.')]),
         Weapon('Power Fist', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D3', abilities=[
             common_abilities['HitMinusOne']]),
         Weapon('Blight Grenade', 6, WeaponType.GRENADE, 'D6', 3, 0, 1, abilities=[
