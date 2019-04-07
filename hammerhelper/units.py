@@ -1,7 +1,7 @@
 from enum import Enum
 
 from abilities import (sort_abilities, Ability, AttacksModifier, DiseasedHorde, InvulnerableSave, AutoHit, HitModifier,
-                       HitReRollAura, Resilient, WoundReRoll, WoundReRollAura)
+                       HitReRollAura, Resilient, MeltaRollDamageTwice, WoundReRoll, WoundReRollFailures, WoundReRollAura)
 
 
 class WeaponType(Enum):
@@ -109,30 +109,64 @@ class Unit(object):
         return [ab for ab in self.abilities if (ab.aura and ab.defensive)]
 
 
+common_abilities = {
+    'Disgustingly Resilient': Resilient('Disgustingly Resilient', 5),
+    'Plague Weapon': WoundReRoll('Plague Weapon', 1),
+    'AutoHit': AutoHit('This weapon automatically hits its target'),
+    'HitMinusOne': HitModifier('Subtract 1 from the hit roll', -1),
+}
+
+
 all_units = [
 
     # DEATH GUARD #
     # DEATH GUARD TROOPS #
 
     Unit('Plague Champion', 5, 3, 3, 4, 5, 1, 2, 8, 3, weapons=[
-        Weapon('Blight Launcher', 24, WeaponType.ASSAULT, 2, 6, -2, 'D3', abilities=[WoundReRoll('Plague Weapon', 1)]),
         Weapon('Bolt Pistol', 12, WeaponType.PISTOL, 1, 4, 0, 1),
         Weapon('Boltgun', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
-        Weapon('Meltagun', 12, WeaponType.ASSAULT, 1, 8, -4, 'D6'),  # TODO roll two damage dice ability
-        Weapon('Plague Belcher', 9, WeaponType.ASSAULT, 'D6', 4, 0, 1),  # TODO autohit, plague weapon
-        Weapon('Plague Spewer', 9, WeaponType.HEAVY, 'D6', 5, -1, 1),  # TODO autohit, plague weapon
         Weapon('Plasma Gun (Standard)', 24, WeaponType.RAPID_FIRE, 1, 7, -3, 1),
         Weapon('Plasma Gun (Supercharge)', 24, WeaponType.RAPID_FIRE, 1, 8, -3, 2),
         Weapon('Plasma Pistol (Standard)', 12, WeaponType.PISTOL, 1, 7, -3, 1),
         Weapon('Plasma Pistol (Supercharge)', 12, WeaponType.PISTOL, 1, 8, -3, 2),
-        Weapon('Bubotic Axe', None, WeaponType.MELEE, 'U', 'U+1', -2, 1),  # TODO plague weapon
-        Weapon('Flail of Corruption', None, WeaponType.MELEE, 'D3', 'U+2', -2, 2),  # TODO plague weapon, wound overflow
-        Weapon('Great Plague Cleaver', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D6'),  # TODO plague weapon, hit penalty
-        Weapon('Mace of Contagion', None, WeaponType.MELEE, 'U', 'U+2', -1, 3),  # TODO plague weapon, hit penalty
-        Weapon('Plague Knife', None, WeaponType.MELEE, 'U', 'U', 0, 1),  # TODO plague weapon
-        Weapon('Plague Sword', None, WeaponType.MELEE, 'U', 'U', 0, 1),  # TODO reroll FAILED wound rolls
-        Weapon('Power Fist', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D3'),  # TODO hit penalty
-        Weapon('Blight Grenade', 6, WeaponType.GRENADE, 'D6', 3, 0, 1),  # TODO plague weapon
+        Weapon('Plague Knife', None, WeaponType.MELEE, 'U', 'U', 0, 1, abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Plague Sword', None, WeaponType.MELEE, 'U', 'U', 0, 1, abilities=[
+            WoundReRollFailures()]),
+        Weapon('Power Fist', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D3', abilities=[
+            common_abilities['HitMinusOne']]),
+        Weapon('Blight Grenade', 6, WeaponType.GRENADE, 'D6', 3, 0, 1, abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Krak Grenade', 6, WeaponType.GRENADE, 1, 6, -1, 'D3'),
+    ], abilities=[Resilient('Disgustingly Resilient', 5)]),
+    Unit('Plague Marine', 5, 3, 3, 4, 5, 1, 2, 8, 3, weapons=[
+        Weapon('Blight Launcher', 24, WeaponType.ASSAULT, 2, 6, -2, 'D3', abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Boltgun', 24, WeaponType.RAPID_FIRE, 1, 4, 0, 1),
+        Weapon('Meltagun', 12, WeaponType.ASSAULT, 1, 8, -4, 'D6', abilities=[
+            MeltaRollDamageTwice()]),
+        Weapon('Plague Belcher', 9, WeaponType.ASSAULT, 'D6', 4, 0, 1, abilities=[
+            common_abilities['Plague Weapon'],
+            common_abilities['AutoHit']]),
+        Weapon('Plague Spewer', 9, WeaponType.HEAVY, 'D6', 5, -1, 1, abilities=[
+            common_abilities['Plague Weapon'],
+            common_abilities['AutoHit']]),
+        Weapon('Plasma Gun (Standard)', 24, WeaponType.RAPID_FIRE, 1, 7, -3, 1),
+        Weapon('Plasma Gun (Supercharge)', 24, WeaponType.RAPID_FIRE, 1, 8, -3, 2),
+        Weapon('Bubotic Axe', None, WeaponType.MELEE, 'U', 'U+1', -2, 1, abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Flail of Corruption', None, WeaponType.MELEE, 'D3', 'U+2', -2, 2, abilities=[
+            common_abilities['Plague Weapon']]),  # TODO wound overflow
+        Weapon('Great Plague Cleaver', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D6', abilities=[
+            common_abilities['Plague Weapon'],
+            common_abilities['HitMinusOne']]),
+        Weapon('Mace of Contagion', None, WeaponType.MELEE, 'U', 'U+2', -1, 3, abilities=[
+            common_abilities['Plague Weapon'],
+            common_abilities['HitMinusOne']]),
+        Weapon('Plague Knife', None, WeaponType.MELEE, 'U', 'U', 0, 1, abilities=[
+            common_abilities['Plague Weapon']]),
+        Weapon('Blight Grenade', 6, WeaponType.GRENADE, 'D6', 3, 0, 1, abilities=[
+            common_abilities['Plague Weapon']]),
         Weapon('Krak Grenade', 6, WeaponType.GRENADE, 1, 6, -1, 'D3'),
     ], abilities=[Resilient('Disgustingly Resilient', 5)]),
 
@@ -166,17 +200,17 @@ all_units = [
     Unit('Aggressor Sergeant', 5, 3, 3, 4, 5, 2, 2, 8, 3, weapons=[
         Weapon('Auto Boltstorm Gauntlets (Shooting)', 18, WeaponType.ASSAULT, 6, 4, 0, 1),
         Weapon('Flamestorm Gauntlets (Shooting)', 8, WeaponType.ASSAULT, '2D6', 4, 0, 1, abilities=[
-            AutoHit('This weapon automatically hits its target')]),
+            common_abilities['AutoHit']]),
         Weapon('Fragstorm Grenade Launcher', 18, WeaponType.ASSAULT, 'D6', 4, 0, 1),
         Weapon('Auto Boltstorm Gauntlets (Melee)', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D3', abilities=[
-            HitModifier('Subtract 1 from the hit roll', -1)]),
+            common_abilities['HitMinusOne']]),
         Weapon('Flamestorm Gauntlets (Melee)', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D3', abilities=[
-            HitModifier('Subtract 1 from the hit roll', -1)]),
+            common_abilities['HitMinusOne']]),
     ], abilities=[Ability('Fire Storm')]),  # TODO prompt before shots?
     Unit('Aggressor', 5, 3, 3, 4, 5, 2, 2, 7, 3, weapons=[
         Weapon('Auto Boltstorm Gauntlets (Shooting)', 18, WeaponType.ASSAULT, 6, 4, 0, 1),
         Weapon('Flamestorm Gauntlets (Shooting)', 8, WeaponType.ASSAULT, '2D6', 4, 0, 1, abilities=[
-            AutoHit('This weapon automatically hits its target')]),
+            common_abilities['AutoHit']]),
         Weapon('Fragstorm Grenade Launcher', 18, WeaponType.ASSAULT, 'D6', 4, 0, 1),
         Weapon('Auto Boltstorm Gauntlets (Melee)', None, WeaponType.MELEE, 'U', 'Ux2', -3, 'D3', abilities=[
             HitModifier('Subtract 1 from the hit roll', -1)]),

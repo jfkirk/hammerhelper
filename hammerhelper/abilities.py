@@ -1,5 +1,7 @@
 import numpy as np
 
+from util import roll_dice
+
 
 def string_from_ability_list(abilities):
     result = ''
@@ -102,9 +104,33 @@ class WoundReRoll(Ability):
         super().__init__(name)
         self.value = value
 
-    def modify_wound_rolls(self, wound_rolls):
+    def modify_wound_rolls(self, wound_rolls, target):
         failed_rolls = np.argwhere(wound_rolls <= self.value)
-        reroll = np.random.randint(1, 6, size=len(failed_rolls))
+        reroll = roll_dice(6, size=len(failed_rolls))
+        for i, failed_roll_loc in enumerate(failed_rolls):
+            wound_rolls[failed_roll_loc] = reroll[i]
+        return wound_rolls
+
+
+class MeltaRollDamageTwice(Ability):
+    offensive = True
+
+    def __init__(self):
+        super().__init__('If the target is within half range of this weapon, roll two dice when inflicting damage with '
+                         'it and discard the lowest result.')
+
+    def modify_wound_rolls(self, wound_rolls, target):
+        second_roll = roll_dice(6, size=wound_rolls.size)
+        res = np.maximum(wound_rolls, second_roll)
+        return res
+
+
+class WoundReRollFailures(Ability):
+    offensive = True
+
+    def modify_wound_rolls(self, wound_rolls, target):
+        failed_rolls = np.argwhere(wound_rolls < target)
+        reroll = roll_dice(6, size=len(failed_rolls))
         for i, failed_roll_loc in enumerate(failed_rolls):
             wound_rolls[failed_roll_loc] = reroll[i]
         return wound_rolls
@@ -126,7 +152,7 @@ class HitReRollAura(Ability):
 
     def modify_hit_rolls(self, hit_rolls, hit_target):
         failed_rolls = np.argwhere(hit_rolls <= self.value)
-        reroll = np.random.randint(1, 6, size=len(failed_rolls))
+        reroll = roll_dice(6, size=len(failed_rolls))
         for i, failed_roll_loc in enumerate(failed_rolls):
             hit_rolls[failed_roll_loc] = reroll[i]
         return hit_rolls
@@ -141,7 +167,7 @@ class Resilient(Ability):
 
     def modify_damage_rolls(self, damage_rolls):
         for i, damage in enumerate(damage_rolls):
-            resilient_rolls = np.random.randint(1, 7, size=damage)
+            resilient_rolls = roll_dice(6, size=damage)
             damage_reduced = (resilient_rolls >= self.value).sum()
             damage_rolls[i] = damage - damage_reduced
         return damage_rolls
@@ -163,7 +189,7 @@ class WoundReRollAura(Ability):
 
     def modify_wound_rolls(self, wound_rolls):
         failed_rolls = np.argwhere(wound_rolls <= self.value)
-        reroll = np.random.randint(1, 6, size=len(failed_rolls))
+        reroll = roll_dice(6, size=len(failed_rolls))
         for i, failed_roll_loc in enumerate(failed_rolls):
             wound_rolls[failed_roll_loc] = reroll[i]
         return wound_rolls

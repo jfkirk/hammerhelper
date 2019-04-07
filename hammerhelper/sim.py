@@ -3,13 +3,10 @@ import progressbar
 
 from abilities import sort_abilities
 from units import WeaponType
+from util import roll_dice
 
 
 N_SIMS = 10000
-
-
-def roll_dice(d, size):
-    return np.random.randint(1, d + 1, size=size)
 
 
 def roll_from_dice_string(dice_string, size):
@@ -112,7 +109,7 @@ def simulate_unit(attacking_unit, weapon, n_shots, target_unit, active_abilities
         # Roll the wound dice
         wound_rolls = roll_dice(6, size=n_hits)
         for ability in wound_mod_abilities:
-            wound_rolls = ability.modify_wound_rolls(wound_rolls)
+            wound_rolls = ability.modify_wound_rolls(wound_rolls, wound_target_value)
         n_wounds = (wound_rolls >= wound_target_value).sum()
 
         # Roll the save dice
