@@ -19,10 +19,11 @@ FRIENDLY_ARMY = [all_units_dict['Captain in Gravis Armor'],
                  all_units_dict['Aggressor'],
                  all_units_dict['Hellblaster'],
                  all_units_dict['Intercessor'],
-                 all_units_dict['Blightlord Terminator'],
-                 all_units_dict['Plague Marine'],
-                 all_units_dict['Poxwalker']]
-ENEMY_ARMY = FRIENDLY_ARMY
+]
+ENEMY_ARMY = [all_units_dict['Blightlord Terminator'],
+              all_units_dict['Foetid Bloat-drone'],
+              all_units_dict['Plague Marine'],
+              all_units_dict['Poxwalker']]
 
 
 def print_army(army):
